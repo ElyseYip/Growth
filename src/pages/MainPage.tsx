@@ -1,7 +1,9 @@
+import DateComponent from "../components/DateComponent";
+
 const MainPage: React.FC = () => {
   return (
     <>
-      <h1 className="text-white">Main</h1>
+      <DateComponent />
     </>
   );
 };
