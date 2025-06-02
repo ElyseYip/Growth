@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  background-color: black;
+}
+@theme {
+  --color-finance-primary: #2ec4b6;
+  --color-finance-secondary: #1a936f;
+  --color-finance-accent: #cbf3f0;
+  --color-goal-primary: #ff9f1c;
+  --color-goal-secondary: #ffbf69;
+  --color-goal-accent: #fff3e6;
+  --color-diary-primary: #a37afc;
+  --color-diary-secondary: #e2a0ff;
+  --color-diary-accent: #f8f0ff;
+}
