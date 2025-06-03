@@ -6,6 +6,7 @@ import {
   MainPage,
 } from "./pages";
 import NavigationBar from "./components/NavigationBar";
+import RightSideBar from "./components/rightSideBar/RightSideBar";
 
 function App() {
   return (
@@ -13,7 +14,14 @@ function App() {
       <NavigationBar />
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/financial-planning" element={<FinancialPlanningPage />} />
+        <Route
+          path="/financial-planning"
+          element={
+            <RightSideBar>
+              <FinancialPlanningPage />
+            </RightSideBar>
+          }
+        />
         <Route path="/goals" element={<GoalSettingPage />} />
         <Route path="/diary" element={<DailyDiaryPage />} />
       </Routes>

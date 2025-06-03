@@ -1,6 +1,5 @@
 import {
   startOfToday,
-  startOfMonth,
   endOfMonth,
   eachDayOfInterval,
   format,
@@ -8,12 +7,9 @@ import {
   isToday,
   isEqual,
   isSameMonth,
-  subMonths,
-  addMonths,
   add,
   parse,
   sub,
-  set,
   getDay,
 } from "date-fns";
 
