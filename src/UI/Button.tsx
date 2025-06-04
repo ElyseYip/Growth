@@ -1,8 +1,8 @@
 import classNames from "classnames";
 
-interface Props {
+interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   buttonText: string;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   btnColor?: string;
 }
@@ -11,11 +11,13 @@ const Button: React.FC<Props> = ({
   onClick,
   className,
   btnColor,
+  ...rest
 }: Props) => {
   return (
     <button
       className={classNames(className, "py-2 px-4 rounded-2xl", btnColor)}
       onClick={onClick}
+      {...rest}
     >
       {buttonText}
     </button>
