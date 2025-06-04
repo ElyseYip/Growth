@@ -92,7 +92,7 @@ const BudgetSetting: React.FC<Props> = (Props) => {
                 <p
                   className={`h-6 ${
                     error.targetBudget ? "visibile" : "invisible"
-                  }`}
+                  } text-sm text-red-500`}
                 >
                   {error.targetBudget}
                 </p>
@@ -119,7 +119,7 @@ const BudgetSetting: React.FC<Props> = (Props) => {
                 <p
                   className={`h-6 ${
                     error.targetPeriod ? "visibile" : "invisible"
-                  }`}
+                  } text-sm text-red-500`}
                 >
                   {error.targetPeriod}
                 </p>
