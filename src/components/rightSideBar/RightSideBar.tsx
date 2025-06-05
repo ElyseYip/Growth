@@ -47,7 +47,7 @@ const RightSideBar: React.FC<Props> = ({ children }) => {
         </div>
       ) : (
         <div onClick={handleCalendarClick}>
-          <FaRegCalendarAlt size={30} color="white" />
+          <FaRegCalendarAlt size={30} color="black" />
         </div>
       )}
     </div>

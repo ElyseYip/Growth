@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import {
+  BudgetPlanningPage,
   DailyDiaryPage,
-  FinancialPlanningPage,
   GoalSettingPage,
   MainPage,
 } from "./pages";
@@ -15,10 +15,10 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route
-          path="/financial-planning"
+          path="/budget-planning"
           element={
             <RightSideBar>
-              <FinancialPlanningPage />
+              <BudgetPlanningPage />
             </RightSideBar>
           }
         />

@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 const menuItems: Record<string, string>[] = [
   { name: "Home", url: "/" },
   { name: "Goal Setting", url: "/goals" },
-  { name: "Financial Planning", url: "/financial-planning" },
+  { name: "Budget Planning", url: "/budget-planning" },
   { name: "Daily Diary", url: "diary" },
 ];
 
@@ -28,7 +28,7 @@ const NavigationBar: React.FC = () => {
   });
 
   return (
-    <div className="flex justify-between items-center h-24 px-4 text-white">
+    <div className="flex justify-between items-center h-24 px-4 ">
       <h1 className="w-full text-3xl font-bold text-[#00df9a]">Growth.</h1>
       <ul className="hidden md:flex whitespace-nowrap ">{displayMenu}</ul>
       <div onClick={handleNav} className="block md:hidden">
