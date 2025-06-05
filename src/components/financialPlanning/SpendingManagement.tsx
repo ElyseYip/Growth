@@ -11,7 +11,7 @@ import {
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { transactionSchema } from "@/lib/schema";
+import { transactionSchema, type TransactionFormData } from "@/lib/schema";
 import {
   Select,
   SelectContent,
@@ -20,18 +20,13 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Input } from "../ui/input";
-import TaggingSelect from "@/UI/TaggingSelect";
-import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import DateComponent from "../DateComponent";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CiCalendar } from "react-icons/ci";
 import { Calendar } from "../ui/calendar";
 
 const SpendingManagement: React.FC = () => {
-  const [categories, setCategories] = useState<string[]>([]);
-
   const {
     register,
     handleSubmit,
@@ -47,15 +42,13 @@ const SpendingManagement: React.FC = () => {
       amount: "",
       description: "",
       date: new Date(),
-      isRecurring: false,
     },
   });
 
   const type = watch("type");
-  const isRecurring = watch("isRecurring");
   const date = watch("date");
 
-  const onSubmit = (data) => {
+  const onSubmit = (data: TransactionFormData) => {
     const formData = {
       ...data,
       amount: parseFloat(data.amount),
@@ -82,23 +75,47 @@ const SpendingManagement: React.FC = () => {
                 Add Transaction
               </DrawerTitle>
             </DrawerHeader>
-            <form className="space-y-6">
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Type</label>
                 <Select
-                  onValueChange={(value) => setValue("type", value)}
+                  onValueChange={(value: "EXPENSE" | "INCOME") =>
+                    setValue("type", value)
+                  }
                   defaultValue={type}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="EXPENSE">Expense</SelectItem>
+                    <SelectItem value="INCOME">Income</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {errors.type && (
+                  <p className="text-sm text-red-500">{errors.type.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <Select
+                  onValueChange={(value) => setValue("category", value)}
+                  defaultValue={getValues("category")}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="EXPENSE">Expense</SelectItem>
                     <SelectItem value="INCOME">Income</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.type && (
-                  <p className="text-sm text-red-500">{errors.type.message}</p>
+                {errors.category && (
+                  <p className="text-sm text-red-500">
+                    {errors.category.message}
+                  </p>
                 )}
               </div>
 
@@ -117,26 +134,6 @@ const SpendingManagement: React.FC = () => {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
-                <Select
-                  onValueChange={(value) => setValue("category", value)}
-                  defaultValue={getValues("category")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EXPENSE">Expense</SelectItem>
-                    <SelectItem value="INCOME">Income</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p className="text-sm text-red-500">
-                    {errors.category.message}
-                  </p>
-                )}
-              </div>
               <div className="space-y-2 flex-col">
                 <label className="text-sm font-medium">Date</label>
 
@@ -157,7 +154,11 @@ const SpendingManagement: React.FC = () => {
                     <Calendar
                       mode="single"
                       selected={date}
-                      onSelect={(date) => setValue("date", date)}
+                      onSelect={(date: Date | undefined) => {
+                        if (date) {
+                          setValue("date", date);
+                        }
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
                       }
@@ -171,7 +172,8 @@ const SpendingManagement: React.FC = () => {
                   <p className="text-sm text-red-500">{errors.date.message}</p>
                 )}
               </div>
-              <div className="space-y-2">
+
+              <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">Description</label>
                 <Input
                   placeholder="Enter description"
