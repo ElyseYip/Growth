@@ -1,3 +1,4 @@
+import type { Transaction } from "@/reducer/budgetPlanningSlice";
 import { Checkbox } from "../ui/checkbox";
 import {
   Table,
@@ -8,16 +9,48 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { useAppSelector } from "@/hooks/useReducer";
+import { categoryColors } from "@/data/categories";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { MdMoreHoriz } from "react-icons/md";
+import { useState } from "react";
+import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 
 interface Props {
-  transactions?: [];
+  transactions?: Transaction[];
 }
 
 const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
-  const filteredAndSortedTransaction = transactions;
-  const handleSort = (date: string) => {
-    console.log("date");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    field: "date",
+    direction: "desc",
+  });
+  const filteredAndSortedTransaction = useAppSelector(
+    (state) => state.budgetPlanning.transactionData
+  );
+
+  console.log("filteredAndSortedTransaction", filteredAndSortedTransaction);
+
+  const handleSort = (field: string) => {
+    setSortConfig((prev) => ({
+      field,
+      direction:
+        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+    }));
   };
+
+  const deleteTransaction = (id: string) => {
+    console.log(id);
+  };
+
   return (
     <div>
       <Table>
@@ -30,20 +63,44 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
               className="cursor-pointer"
               onClick={() => handleSort("date")}
             >
-              <div className="flex items-center">Date</div>
+              <div className="flex items-center">
+                Date{" "}
+                {sortConfig.field === "date" &&
+                  (sortConfig.direction === "asc" ? (
+                    <FaChevronUp className="ml-1 h-4 w-4" />
+                  ) : (
+                    <FaChevronDown className="ml-1 h-4 w-4" />
+                  ))}
+              </div>
             </TableHead>
             <TableHead>Description</TableHead>
             <TableHead
               className="cursor-pointer"
               onClick={() => handleSort("category")}
             >
-              <div className="flex items-center">Category</div>
+              <div className="flex items-center">
+                Category{" "}
+                {sortConfig.field === "category" &&
+                  (sortConfig.direction === "asc" ? (
+                    <FaChevronUp className="ml-1 h-4 w-4" />
+                  ) : (
+                    <FaChevronDown className="ml-1 h-4 w-4" />
+                  ))}
+              </div>
             </TableHead>
             <TableHead
               className="cursor-pointer"
               onClick={() => handleSort("amount")}
             >
-              <div className="flex items-center justify-end">Amount</div>
+              <div className="flex items-center justify-end">
+                Amount{" "}
+                {sortConfig.field === "amount" &&
+                  (sortConfig.direction === "asc" ? (
+                    <FaChevronUp className="ml-1 h-4 w-4" />
+                  ) : (
+                    <FaChevronDown className="ml-1 h-4 w-4" />
+                  ))}
+              </div>
             </TableHead>
             <TableHead className="w-[50px" />
           </TableRow>
@@ -69,8 +126,36 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
                     {transaction.date}
                   </TableCell>
                   <TableCell>{transaction.description}</TableCell>
-                  <TableCell>{transaction.category}</TableCell>
-                  <TableCell className="text-right">{`$ ${transaction.amount}`}</TableCell>
+                  <TableCell className="capitalize">
+                    <span
+                      style={{
+                        background: categoryColors[transaction.category],
+                      }}
+                      className="px-2 py-1 rounded text-white text-sm"
+                    >
+                      {transaction.category}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">{`$ ${transaction.amount}`}</TableCell>
+                  <TableCell className="text-right font-medium">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <MdMoreHoriz />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel onClick={() => {}}>
+                          Edit
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => deleteTransaction(transaction.id)}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               );
             })
