@@ -1,4 +1,6 @@
-export const transactionData = [
+import type { Transaction } from "@/reducer/budgetPlanningSlice";
+
+export const transactionData: Transaction[] = [
   {
     id: "1",
     date: "2023-10-01",

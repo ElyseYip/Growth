@@ -25,6 +25,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CiCalendar } from "react-icons/ci";
 import { Calendar } from "../ui/calendar";
+import { v4 as uuidv4 } from "uuid";
+import { useAppDispatch } from "@/hooks/useReducer";
 
 const SpendingManagement: React.FC = () => {
   const {
@@ -48,12 +50,18 @@ const SpendingManagement: React.FC = () => {
   const type = watch("type");
   const date = watch("date");
 
+  const dispatch = useAppDispatch();
+
   const onSubmit = (data: TransactionFormData) => {
     const formData = {
       ...data,
+      id: uuidv4(),
       amount: parseFloat(data.amount),
+      date: format(data.date, "yyyy-MM-dd"),
     };
     console.log("Form Data Submitted:", formData);
+    dispatch({ type: "budgetPlanning/appendTransation", payload: formData });
+    reset();
   };
 
   return (

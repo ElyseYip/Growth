@@ -19,14 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAppDispatch } from "@/hooks/useReducer";
 import { useState, type FormEvent } from "react";
 
-interface Props {}
-const BudgetSetting: React.FC<Props> = (Props) => {
+const BudgetSetting: React.FC = () => {
   const [targetBudget, setTargetBudget] = useState(0);
   const [targetPeriod, setTargetPeriod] = useState("");
   const [openDrawer, setOpenDrawer] = useState(false);
   const [error, setError] = useState<Record<string, string>>({});
+
+  const dispatch = useAppDispatch();
 
   const handleTargetBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.valueAsNumber;
@@ -51,12 +53,17 @@ const BudgetSetting: React.FC<Props> = (Props) => {
       }));
       return;
     }
+    dispatch({
+      type: "budgetPlanning/budgetSetting",
+      payload: { amount: targetBudget, period: targetPeriod },
+    });
 
     setError({});
     setTargetBudget(0);
     setTargetPeriod("");
     closeDrawer();
   };
+
   return (
     <>
       <Drawer

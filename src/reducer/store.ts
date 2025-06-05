@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import fileUploadReducer from "../reducer/fileUploadSlice";
+import budgetPlanningReducer from "../reducer/budgetPlanningSlice";
 
 export const store = configureStore({
   reducer: {
     fileUpload: fileUploadReducer,
+    budgetPlanning: budgetPlanningReducer,
   },
 });
 
