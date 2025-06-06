@@ -3,7 +3,6 @@ import { Checkbox } from "../ui/checkbox";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -20,24 +19,86 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { MdMoreHoriz } from "react-icons/md";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
+import { Input } from "../ui/input";
+import { CiSearch } from "react-icons/ci";
+import { Button } from "../ui/button";
+import { FaTrash } from "react-icons/fa";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { MdClose } from "react-icons/md";
 
 interface Props {
   transactions?: Transaction[];
 }
-
+const ITEMS_PER_PAGE = 10;
 const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
     direction: "desc",
   });
-  const filteredAndSortedTransaction = useAppSelector(
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const transactionData = useAppSelector(
     (state) => state.budgetPlanning.transactionData
   );
 
-  console.log("filteredAndSortedTransaction", filteredAndSortedTransaction);
+  const filteredAndSortedTransactions = useMemo(() => {
+    let result = [...transactionData];
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      result = result.filter((transaction) =>
+        transaction.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply type filter
+    if (typeFilter) {
+      result = result.filter((transaction) => transaction.type === typeFilter);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortConfig.field) {
+        case "date":
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case "amount":
+          comparison = a.amount - b.amount;
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [transactions, searchTerm, typeFilter, sortConfig]);
+
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSortedTransactions.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    );
+  }, [filteredAndSortedTransactions, currentPage]);
 
   const handleSort = (field: string) => {
     setSortConfig((prev) => ({
@@ -47,17 +108,108 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
     }));
   };
 
-  const deleteTransaction = (id: string) => {
+  const handleSelect = (id: string) => {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedIds((current) =>
+      current.length === paginatedTransactions.length
+        ? []
+        : paginatedTransactions.map((t) => t.id)
+    );
+  };
+
+  const deleteTransaction = (id: string[]) => {
     console.log(id);
+  };
+
+  const handleBulkDelete = () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedIds.length} transactions?`
+      )
+    )
+      return;
+    deleteTransaction(selectedIds);
+  };
+
+  const handleSearchTerm = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setTypeFilter("");
+    setCurrentPage(1);
   };
 
   return (
     <div>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <CiSearch
+            size={30}
+            className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"
+          />
+          <Input
+            className="pl-8"
+            placeholder="Search Transactions..."
+            value={searchTerm}
+            onChange={handleSearchTerm}
+          />
+        </div>
+        <div className="flex gap-2">
+          <Select
+            value={typeFilter}
+            onValueChange={(value) => {
+              setTypeFilter(value);
+              // setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="income">Income</SelectItem>
+              <SelectItem value="expense">Expense</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBulkDelete}
+              >
+                <FaTrash className="h-4 w-4 mr-2" />
+                Delete Selected ({selectedIds.length})
+              </Button>
+            </div>
+          )}
+
+          {(searchTerm || typeFilter) && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleClearFilters}
+              title="Clear filters"
+            >
+              <MdClose />
+            </Button>
+          )}
+        </div>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[50px">
-              <Checkbox />
+              <Checkbox onCheckedChange={handleSelectAll} />
             </TableHead>
             <TableHead
               className="cursor-pointer"
@@ -106,7 +258,7 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredAndSortedTransaction.length === 0 ? (
+          {filteredAndSortedTransactions.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={6}
@@ -116,11 +268,14 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
               </TableCell>
             </TableRow>
           ) : (
-            filteredAndSortedTransaction.map((transaction) => {
+            filteredAndSortedTransactions.map((transaction) => {
               return (
                 <TableRow key={transaction.id}>
                   <TableCell>
-                    <Checkbox />
+                    <Checkbox
+                      checked={selectedIds.includes(transaction.id)}
+                      onCheckedChange={() => handleSelect(transaction.id)}
+                    />
                   </TableCell>
                   <TableCell className="font-medium">
                     {transaction.date}
@@ -149,7 +304,7 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => deleteTransaction(transaction.id)}
+                          onClick={() => deleteTransaction([transaction.id])}
                         >
                           Delete
                         </DropdownMenuItem>
