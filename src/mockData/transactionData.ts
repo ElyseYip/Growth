@@ -3,7 +3,7 @@ import type { Transaction } from "@/reducer/budgetPlanningSlice";
 export const transactionData: Transaction[] = [
   {
     id: "1",
-    date: "2023-10-01",
+    date: "2025-06-01",
     description: "Grocery Shopping",
     category: "transportation",
     amount: 150.0,
@@ -11,7 +11,7 @@ export const transactionData: Transaction[] = [
   },
   {
     id: "2",
-    date: "2023-10-02",
+    date: "2025-06-02",
     description: "Salary Payment",
     category: "groceries",
     amount: 3000.0,
@@ -19,7 +19,7 @@ export const transactionData: Transaction[] = [
   },
   {
     id: "3",
-    date: "2023-10-03",
+    date: "2025-06-03",
     description: "Electricity Bill",
     category: "utilities",
     amount: 75.0,
@@ -27,7 +27,7 @@ export const transactionData: Transaction[] = [
   },
   {
     id: "4",
-    date: "2023-10-04",
+    date: "2025-06-03",
     description: "Internet Bill",
     category: "utilities",
     amount: 50.0,
@@ -35,7 +35,7 @@ export const transactionData: Transaction[] = [
   },
   {
     id: "5",
-    date: "2023-10-05",
+    date: "2025-06-05",
     description: "Dining Out",
     category: "food",
     amount: 60.0,
