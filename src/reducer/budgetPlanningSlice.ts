@@ -29,6 +29,12 @@ export const budgetPlanningSlice = createSlice({
   name: "budgetPlanning",
   initialState,
   reducers: {
+    filterDeletedTransactionData: (
+      state,
+      action: PayloadAction<Transaction[]>
+    ) => {
+      state.transactionData = [...action.payload];
+    },
     appendTransation: (state, action: PayloadAction<Transaction>) => {
       state.transactionData = [...state.transactionData, action.payload];
     },
@@ -38,7 +44,8 @@ export const budgetPlanningSlice = createSlice({
   },
 });
 
-export const { appendTransation, budgetSetting } = budgetPlanningSlice.actions;
+export const { appendTransation, budgetSetting, filterDeletedTransactionData } =
+  budgetPlanningSlice.actions;
 export const selectTransactionData = (state: {
   budgetPlanning: BudgetPlanningData;
 }) => state.budgetPlanning.transactionData;

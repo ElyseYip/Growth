@@ -1,12 +1,10 @@
+import AccountChart from "@/components/budgetPlanning/AccountChart";
 import BudgetingHeader from "@/components/budgetPlanning/BudgetingHeader";
 import BudgetSetting from "@/components/budgetPlanning/BudgetSetting";
 import SpendingManagement from "@/components/budgetPlanning/SpendingManagement";
 import TransactionTable from "@/components/budgetPlanning/TransactionTable";
-import { transactionData } from "@/mockData/transactionData";
-import type { Transaction } from "@/reducer/budgetPlanningSlice";
 
 const FinancialPlanningPage: React.FC = () => {
-  const transactions: Transaction[] = transactionData;
   return (
     <div className="flex-col px-4 ">
       <div className="flex justify-end gap-2 px-4">
@@ -14,7 +12,8 @@ const FinancialPlanningPage: React.FC = () => {
         <BudgetSetting />
       </div>
       <BudgetingHeader />
-      <TransactionTable transactions={transactions} />
+      <AccountChart />
+      <TransactionTable />
     </div>
   );
 };

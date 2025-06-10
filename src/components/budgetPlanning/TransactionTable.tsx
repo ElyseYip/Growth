@@ -1,4 +1,3 @@
-import type { Transaction } from "@/reducer/budgetPlanningSlice";
 import { Checkbox } from "../ui/checkbox";
 import {
   Table,
@@ -8,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { useAppSelector } from "@/hooks/useReducer";
+import { useAppDispatch, useAppSelector } from "@/hooks/useReducer";
 import { categoryColors } from "@/data/categories";
 import {
   DropdownMenu,
@@ -34,11 +33,9 @@ import {
 } from "../ui/select";
 import { MdClose } from "react-icons/md";
 
-interface Props {
-  transactions?: Transaction[];
-}
 const ITEMS_PER_PAGE = 10;
-const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
+
+const TransactionTable: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
@@ -47,6 +44,7 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const dispatch = useAppDispatch();
 
   const transactionData = useAppSelector(
     (state) => state.budgetPlanning.transactionData
@@ -90,7 +88,7 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
     });
 
     return result;
-  }, [transactions, searchTerm, typeFilter, sortConfig]);
+  }, [transactionData, searchTerm, typeFilter, sortConfig]);
 
   const paginatedTransactions = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -124,8 +122,15 @@ const TransactionTable: React.FC<Props> = ({ transactions = [] }: Props) => {
     );
   };
 
-  const deleteTransaction = (id: string[]) => {
-    console.log(id);
+  const deleteTransaction = (ids: string[]) => {
+    const remainTransactions = filteredAndSortedTransactions.filter(
+      (transaction) => !ids.includes(transaction.id)
+    );
+    dispatch({
+      type: "budgetPlanning/filterDeletedTransactionData",
+      payload: remainTransactions,
+    });
+    setSelectedIds([]);
   };
 
   const handleBulkDelete = () => {

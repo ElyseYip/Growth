@@ -3,7 +3,6 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -20,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAppDispatch } from "@/hooks/useReducer";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 
 const BudgetSetting: React.FC = () => {
   const [targetBudget, setTargetBudget] = useState(0);
