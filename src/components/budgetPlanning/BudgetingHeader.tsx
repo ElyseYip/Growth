@@ -6,7 +6,7 @@ const BudgetingHeader: React.FC = () => {
   );
 
   return (
-    <div className=" px-4 ">
+    <div className="">
       <h1 className="text-4xl font-bold gradient-title mb-5 ">
         {`You have set a ${budgetSetData?.period} budget of $${budgetSetData?.amount}.`}
       </h1>

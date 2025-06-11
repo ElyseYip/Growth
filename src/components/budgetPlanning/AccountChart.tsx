@@ -1,4 +1,5 @@
 import { useAppSelector } from "@/hooks/useReducer";
+import type { Transaction } from "@/reducer/budgetPlanningSlice";
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { useMemo } from "react";
 import {
@@ -12,12 +13,19 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+interface ChartData {
+  date: string;
+  income: number;
+  expense: number;
+}
 const DATE_RANGES = {
   weekly: { label: "Last 7 Days", days: 7 },
   monthly: { label: "Last Month", days: 30 },
   quarterly: { label: "Last 3 Months", days: 90 },
   yearly: { label: "Last Year", days: 365 },
-};
+} as const;
+
+type ValidBudgetSetPeriod = keyof typeof DATE_RANGES;
 
 const AccountChart = () => {
   const budgetSetPeriod = useAppSelector(
@@ -28,55 +36,67 @@ const AccountChart = () => {
     (state) => state.budgetPlanning.transactionData
   );
 
-  type DayData = { date: string; income: number; expense: number };
-  const filteredData: DayData[] = useMemo(() => {
-    const range = DATE_RANGES[budgetSetPeriod];
+  const isValidBudgetSetPeriod = (
+    value: any
+  ): value is ValidBudgetSetPeriod => {
+    return value in DATE_RANGES;
+  };
 
-    console.log("range", range);
+  const filteredData: ChartData[] = useMemo(() => {
+    const safePeriod: ValidBudgetSetPeriod = isValidBudgetSetPeriod(
+      budgetSetPeriod
+    )
+      ? budgetSetPeriod
+      : "weekly";
+
+    const range = DATE_RANGES[safePeriod];
+
     const now = new Date();
-    const startDate = range.days
-      ? startOfDay(subDays(now, range.days))
+    const startDate = range?.days
+      ? startOfDay(subDays(now, range?.days))
       : startOfDay(new Date(0));
 
     const filtered = transactionData.filter(
-      (transaction: any) =>
+      (transaction: Transaction) =>
         new Date(transaction.date) >= startDate &&
         new Date(transaction.date) <= endOfDay(now)
     );
 
-    const grouped = filtered.reduce((acc: any, transaction: any) => {
-      const date = format(new Date(transaction.date), "MMM dd");
-      if (!acc[date]) {
-        acc[date] = { date, income: 0, expense: 0 };
-      }
-      if (transaction.type === "income") {
-        acc[date].income += transaction.amount;
-      } else {
-        acc[date].expense += transaction.amount;
-      }
-      return acc;
-    }, {});
+    const grouped = filtered.reduce(
+      (acc: Record<string, ChartData>, transaction: Transaction) => {
+        const date = format(new Date(transaction.date), "MMM dd");
+        if (!acc[date]) {
+          acc[date] = { date, income: 0, expense: 0 };
+        }
+        if (transaction.type === "income") {
+          acc[date].income += transaction.amount;
+        } else {
+          acc[date].expense += transaction.amount;
+        }
+        return acc;
+      },
+      {} as Record<string, ChartData>
+    );
 
-    console.log("filteredData", filtered, grouped);
-
-    return Object.values(grouped).sort((a: any, b: any) => {
+    return (Object.values(grouped) as ChartData[]).sort((a, b) => {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
   }, [transactionData, budgetSetPeriod]);
 
   const totals = useMemo(() => {
     return filteredData.reduce(
-      (acc: { income: number; expense: number }, day: DayData) => {
+      (
+        acc: { income: number; expense: number },
+        dailyTransaction: ChartData
+      ) => {
         return {
-          income: acc.income + day.income,
-          expense: acc.expense + day.expense,
+          income: acc.income + dailyTransaction.income,
+          expense: acc.expense + dailyTransaction.expense,
         };
       },
       { income: 0, expense: 0 }
     );
   }, [filteredData]);
-
-  console.log("period", budgetSetPeriod, totals);
 
   return (
     <>

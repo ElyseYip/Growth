@@ -154,7 +154,7 @@ const TransactionTable: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="mb-10">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <CiSearch
